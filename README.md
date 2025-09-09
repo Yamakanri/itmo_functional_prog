@@ -16,9 +16,9 @@
 базовый де-факто стандарт “rebar3”, который уже включает в себя форматер «erlfmt», линтеры «Elvis» и «Dialyzer». Для тестирования выбран «EUnit», 
 которого по прикидкам должно хватить для задач 2 лабораторной. 
 
-Для подготовке к выбору языка и написания эссе были прочитаны следующие статьи: «Erlang как язык,
-направленный на создание параллельных приложений»(https://cyberleninka.ru/article/n/erlang-kak-yazyk-napravlennyy-na-sozdanie-parallelnyh-prilozheniy/viewer), «Сильные стороны функционального программирования»(https://habr.com/ru/companies/typeable/articles/542440/), «Почему Erlang – язык для очень спецефичных задач»(https://eax.me/erlang-is-specific/), 
-а также некоторое количество статей на habr, целостно не удостоенные упоминания тут.
+«Erlang как язык,направленный на создание параллельных приложений»(https://cyberleninka.ru/article/n/erlang-kak-yazyk-napravlennyy-na-sozdanie-parallelnyh-prilozheniy/viewer)
+«Сильные стороны функционального программирования»(https://habr.com/ru/companies/typeable/articles/542440/)
+«Почему Erlang – язык для очень спецефичных задач»(https://eax.me/erlang-is-specific/)
 
 ___________________________________________________________
 Варианты книг, на согласование:
