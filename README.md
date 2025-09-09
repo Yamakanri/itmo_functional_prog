@@ -15,9 +15,9 @@
 Для выполнения лабораторных работ потребовалось установить последнюю версию - Erlang/OTP 28, включающую все необходимые библиотеки и шаблоны. В качестве системы сборки выбрана
 базовый де-факто стандарт “rebar3”, который уже включает в себя форматер «erlfmt», линтеры «Elvis» и «Dialyzer». Для тестирования выбран «EUnit»
 
-«Erlang как язык,направленный на создание параллельных приложений»(https://cyberleninka.ru/article/n/erlang-kak-yazyk-napravlennyy-na-sozdanie-parallelnyh-prilozheniy/viewer)
-«Сильные стороны функционального программирования»(https://habr.com/ru/companies/typeable/articles/542440/)
-«Почему Erlang – язык для очень спецефичных задач»(https://eax.me/erlang-is-specific/)
+«Erlang как язык,направленный на создание параллельных приложений»(https://cyberleninka.ru/article/n/erlang-kak-yazyk-napravlennyy-na-sozdanie-parallelnyh-prilozheniy/viewer),
+«Сильные стороны функционального программирования»(https://habr.com/ru/companies/typeable/articles/542440/),
+«Почему Erlang – язык для очень спецефичных задач»(https://eax.me/erlang-is-specific/).
 
 ___________________________________________________________
 Варианты книг, на согласование:
