@@ -68,3 +68,73 @@ is_prime(Num, Div) when Div * Div > Num -> true;
 is_prime(Num, Div) when Num rem Div =:= 0 -> false;
 is_prime(Num, Div) -> is_prime(Num, Div + 2).
 ```
+
+
+
+## Задача № 20.
+Найти сумму всех цифр в числе '100!'
+
+## Решение с помощью хвостовой рекурсии
+```erlang
+start() -> fact(100).
+
+fact(N) -> fact(N, 1).
+
+fact(0, Acc) -> split(Acc);
+fact(N, Acc) when N>0 ->  fact(N-1, Acc*N).
+
+
+split(Num) -> split(Num, []).
+
+split(0, Digits) ->sum(Digits);
+split(Num, Digits) -> split(Num div 10, [Num rem 10 | Digits]).
+
+
+sum(List) -> sum(0, List).
+
+sum(Result, []) -> Result;
+sum(Result, [H | T]) -> sum(Result + H, T).
+```
+
+## Решение с помощью рекурсии
+```erlang
+start() -> sum(split(fact(100))).
+
+fact(0) -> 1;
+fact(N) when N>0 -> N*fact(N-1).
+
+split(0) -> [];
+split(N) -> split(N div 10) ++ [N rem 10].
+
+sum([]) -> 0;
+sum([H|T]) -> sum(T) + H.
+```
+
+
+#НА РЕМОНТЕ
+## Модульное решение (генерация списков, фильтрация, свертка)
+**(Есть версия лаконичнее, но без генерации списков, кроме такого варианта ее просто не впихнуть)**
+```erlang
+start() ->
+  FactorialSums = generator(),
+  FactorialResult = svertka(FactorialSums),
+  SplittedList = number_to_digits(FactorialResult),
+  FiltratedList = filtration(SplittedList),
+  svertka2(FiltratedList).
+
+generator() -> [X * (X + 1) || X <- lists:seq(1, 99, 2)].
+
+
+svertka(List) ->
+  lists:foldl(fun(Item, Acc) -> Acc * Item end, 1, List).
+
+number_to_digits(Number) -> number_to_digits(Number, []).
+number_to_digits(0, Acc) -> Acc;
+number_to_digits(N, Acc) ->
+  number_to_digits(N div 10, [N rem 10 | Acc]).
+
+filtration(List) ->
+  lists:filter(fun(Item) -> Item=/=0 end, List).
+
+svertka2(List) -> lists:foldl(fun(Item, Acc) -> Acc + Item end, 0, List).
+```
