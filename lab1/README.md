@@ -3,7 +3,7 @@
 Найти сумму всех простых чисел меньше 2,000,000.
 
 ## Решение с помощью хвостовой рекурсии
-```
+```erlang
 start() ->
   sum_primes(3, 2000000, 2).
 
@@ -25,7 +25,7 @@ is_prime(N, D) ->
 ```
 
 ## Решение с помощью рекурсии
-```
+```erlang
 start() ->
   2 + sum_primes(3, 2000000).
 
@@ -46,7 +46,7 @@ is_prime(Num, Div) ->
   is_prime(Num, Div + 2).
 ```
 ## Модульное решение (генерация списков, фильтрация, свертка)
-```
+```erlang
 start() ->
   Candidates = generating(3, 2000000),
   PrimeNumbers = filtration(Candidates),
