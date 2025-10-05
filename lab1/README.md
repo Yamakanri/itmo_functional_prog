@@ -48,22 +48,22 @@ is_prime(Num, Div) ->
 ## Модульное решение (генерация списков, фильтрация, свертка)
 ```
 start() ->
-  Candidates = generator(3, 2000000),
-  PrimeNumbers = filter(Candidates),
-  svertka(PrimeNumbers, 2).
+  Candidates = generating(3, 2000000),
+  PrimeNumbers = filtration(Candidates),
+  folding(PrimeNumbers, 2).
 
-generator(Start, Limit) ->
+generating(Start, Limit) ->
   [X|| X<-lists:seq(Start,Limit, 2)].
 
-filter(Numbers) ->
+filtration(Numbers) ->
   lists:filter(fun is_prime/1, Numbers).
 
-svertka(Numbers, Initial) ->
+folding(Numbers, Initial) ->
   lists:foldl(fun(Numbers, Acc) -> Acc + Numbers end, Initial, Numbers).
 
 
 is_prime(2) -> true;
-is_prime(N) -> is_prime(N, 3).
+is_prime(Num) -> is_prime(Num, 3).
 is_prime(Num, Div) when Div * Div > Num -> true;
 is_prime(Num, Div) when Num rem Div =:= 0 -> false;
 is_prime(Num, Div) -> is_prime(Num, Div + 2).
