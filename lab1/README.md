@@ -93,6 +93,24 @@ is_prime(N, D) -> is_prime(N, D + 2).
 
 ```
 
+## Решение на Java
+```java
+public class Main {
+    public static void main(String[] args) {
+        long sum = 0;
+        for (int i = 2; i < 2_000_000; i++) {
+            if (isPrime(i)) {
+                sum += i;}
+        }
+        System.out.println(sum);}
+
+    public static boolean isPrime(int n) {
+        if (n < 2) return false;
+        for (int i = 2; i * i <= n; i++) {
+            if (n % i == 0) return false;}
+        return true;}}
+```
+
 ## Задача № 20.
 For example, 10! = 10\*9\*8\*...\*1 = 3628800, and the sum of the digits in 10!is 3+6+2+8+8+0+0=27.
 Find the sum of digits in 100!
@@ -177,4 +195,26 @@ number_to_digits(N) ->
     Char - $0
             end, DigitsString).
 
+```
+## Решение на Java
+```java
+import java.math.BigInteger;
+
+public class Main {
+    public static void main(String[] args) {
+        BigInteger factorial = BigInteger.ONE;
+
+        for (int i = 2; i <= 100; i++) {
+            factorial = factorial.multiply(BigInteger.valueOf(i));
+        }
+
+        String digits = factorial.toString();
+        int sum = 0;
+        for (char c : digits.toCharArray()) {
+            sum += c - '0';
+        }
+
+        System.out.println(sum);
+    }
+}
 ```
