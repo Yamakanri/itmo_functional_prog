@@ -3,7 +3,7 @@
 -include_lib("eunit/include/eunit.hrl").
 -include_lib("stdlib/include/assert.hrl").
 
--define(ANSWER, 142913828922).
+-define(ANSWER, 642).
 
 euler20_recursion_test() -> ?assertEqual(?ANSWER, recursion20:start()).
 
