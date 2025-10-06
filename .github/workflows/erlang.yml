@@ -16,6 +16,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Setup Erlang + rebar3
         uses: erlef/setup-beam@v1
@@ -23,7 +25,8 @@ jobs:
           otp-version: '26.0'      
           rebar3-version: '3.25.0'  
 
-     - name: Auto format code with erlfmt
+      # --- Новый шаг: автоформатирование ---
+      - name: Auto format code with erlfmt
         run: |
           rebar3 fmt src test
           git config --global user.name "github-actions[bot]"
@@ -31,6 +34,7 @@ jobs:
           git add .
           git commit -m "Auto format code with erlfmt" || echo "No changes to commit"
           git push || echo "Push failed, possibly no changes"
+      # ---------------------------------------
 
       - name: Run rebar3 lint
         run: rebar3 lint
@@ -55,7 +59,7 @@ jobs:
         uses: erlef/setup-beam@v1
         with:
           otp-version: '26.0'      
-          rebar3-version: '3.24.0' 
+          rebar3-version: '3.25.0' 
 
       - name: Compile project
         run: rebar3 compile
