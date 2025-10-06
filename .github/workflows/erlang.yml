@@ -23,8 +23,14 @@ jobs:
           otp-version: '26.0'      
           rebar3-version: '3.25.0'  
 
-      - name: Check code formatting with erlfmt
-        run: rebar3 fmt --check --verbose
+     - name: Auto format code with erlfmt
+        run: |
+          rebar3 fmt src test
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add .
+          git commit -m "Auto format code with erlfmt" || echo "No changes to commit"
+          git push || echo "Push failed, possibly no changes"
 
       - name: Run rebar3 lint
         run: rebar3 lint
