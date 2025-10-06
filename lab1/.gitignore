@@ -1,0 +1,14 @@
+# Erlang artifacts
+*.beam
+*.dump
+*.log
+*.plt
+
+# Editor/IDE
+*.swp
+*.swo
+.vscode/
+.idea/
+
+# System
+.DS_Store
