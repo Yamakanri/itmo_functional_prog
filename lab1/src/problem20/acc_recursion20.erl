@@ -1,4 +1,4 @@
--module(accRecursion20).
+-module(acc_recursion20).
 -export([start/0]).
 
 % Задание: Найти сумму всех цифр в числе 100"
