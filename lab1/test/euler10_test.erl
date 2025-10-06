@@ -5,7 +5,7 @@
 
 -define(ANSWER, 142913828922).
 
-euler10_mapp_test() -> ?assertEqual(?ANSWER, otobraz10:start()).
+euler10_mapp_test() -> ?assertEqual(?ANSWER, map10:start()).
 
 euler10_recursion_test() -> ?assertEqual(?ANSWER, recursion10:start()).
 
