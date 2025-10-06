@@ -8,7 +8,7 @@ start() -> factorial(100).
 factorial(N) -> factorial(N, 1).
 
 factorial(0, Acc) -> num_splitter(Acc);
-factorial(N, Acc) when N>0 ->  factorial(N-1, Acc*N).
+factorial(N, Acc) when N>0 -> factorial(N - 1, Acc * N).
 
 %Разбиение числа на массив
 num_splitter(N) -> num_splitter(N, []).
