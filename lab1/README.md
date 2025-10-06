@@ -69,7 +69,30 @@ is_prime(Num, Div) when Num rem Div =:= 0 -> false;
 is_prime(Num, Div) -> is_prime(Num, Div + 2).
 ```
 
+## Решение с помощью отображения
+```erlang
+%Формально функция выполняет отображение
+% start() ->  2 + lists:sum([X || X <- lists:seq(3, 2000000, 2), is_prime(X)]).
 
+start() ->
+      Seq = lists:seq(3, 2000000, 2),
+      Sum = lists:sum(lists:map(fun(X) ->
+        case is_prime(X) of
+          true  -> X;
+          false -> 0
+        end
+      end, Seq)),
+      2 + Sum.
+
+
+is_prime(2) -> true;
+is_prime(N) -> is_prime(N, 3).
+
+is_prime(N, D) when D * D > N -> true;
+is_prime(N, D) when N rem D =:= 0 -> false;
+is_prime(N, D) -> is_prime(N, D + 2).
+
+```
 
 ## Задача № 20.
 Найти сумму всех цифр в числе '100!'
@@ -135,4 +158,23 @@ filtration(List) ->
   lists:filter(fun(Item) -> Item=/=0 end, List).
 
 svertka2(List) 
+```
+
+## Решение с помощью отображения
+```erlang
+start() ->
+  Fact = fact(100),
+  Digits = number_to_digits(Fact),
+  lists:sum(Digits).
+
+fact(N) -> fact(N, 1).
+fact(0, Acc) -> Acc;
+fact(N, Acc) when N > 0 -> fact(N - 1, Acc * N).
+
+number_to_digits(N) ->
+  DigitsString = integer_to_list(N),
+  lists:map(fun(Char) ->
+    Char - $0
+  end, DigitsString).
+
 ```
