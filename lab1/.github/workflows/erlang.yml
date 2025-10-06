@@ -24,11 +24,31 @@ jobs:
           wget https://s3.amazonaws.com/rebar3/rebar3
           chmod +x rebar3
           sudo mv rebar3 /usr/local/bin/
+          rebar3 --version
 
-      - name: Compile modules with warnings
+      - name: Install erlfmt
         run: |
-          erl -noshell -eval "c(accRecursion20, [warn_all]), c(prime_sum, [warn_all]), init:stop()."
+          mix escript.install hex erlfmt 0.11.0 || true
+          erlfmt --version
+
+      - name: Format code
+        run: |
+          erlfmt src test
+
+      - name: Compile project
+        run: |
+          rebar3 compile
+
+     
+      - name: Run lint
+        run: |
+          rebar3 lint
 
       - name: Run EUnit tests
         run: |
-          erl -noshell -eval "eunit:test([accRecursion20, prime_sum]), init:stop()."
+          rebar3 eunit
+
+      - name: Check for unwanted files
+        run: |
+          git ls-files --exclude-standard --others --ignored --directory
+          # Этот шаг покажет, что нет лишних файлов, можно CI падать при наличии
