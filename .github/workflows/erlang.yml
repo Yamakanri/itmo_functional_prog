@@ -21,7 +21,7 @@ jobs:
         uses: erlef/setup-beam@v1
         with:
           otp-version: '26.0'      
-          rebar3-version: '3.24.0'  
+          rebar3-version: '3.25.0'  
 
       - name: Check code formatting with erlfmt
         run: rebar3 fmt --check --verbose
