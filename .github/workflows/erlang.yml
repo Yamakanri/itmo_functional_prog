@@ -28,8 +28,10 @@ jobs:
 
       - name: Install erlfmt
         run: |
-          mix escript.install hex erlfmt 0.11.0 || true
-          erlfmt --version
+        wget https://github.com/WhatsApp/erlfmt/releases/download/v0.11.0/erlfmt-0.11.0-linux-amd64 -O erlfmt
+        chmod +x erlfmt
+        sudo mv erlfmt /usr/local/bin/
+        erlfmt --version
 
       - name: Format code
         run: |
