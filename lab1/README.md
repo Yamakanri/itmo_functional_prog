@@ -128,10 +128,10 @@ generator() -> [X * (X + 1) || X <- lists:seq(1, 99, 2)].
 svertka(List) ->
   lists:foldl(fun(Item, Acc) -> Acc * Item end, 1, List).
 
-number_to_digits(Number) -> number_to_digits(Number, []).
-number_to_digits(0, Acc) -> Acc;
-number_to_digits(N, Acc) ->
-  number_to_digits(N div 10, [N rem 10 | Acc]).
+number_to_digits(N) -> number_to_digits(N, []).
+
+number_to_digits(0, Digits) ->Digits;
+number_to_digits(N, Digits) -> number_to_digits(N div 10, [N rem 10 | Digits]).
 
 filtration(List) ->
   lists:filter(fun(Item) -> Item=/=0 end, List).
