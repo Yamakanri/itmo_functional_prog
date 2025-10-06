@@ -41,6 +41,9 @@ jobs:
       - name: Compile project
         run: rebar3 compile
 
+      - name: Compile otobraz10
+        run: rebar3 compile src/problem10/otobraz10.erl
+
       - name: Run Dialyzer
         run: rebar3 dialyzer
 
