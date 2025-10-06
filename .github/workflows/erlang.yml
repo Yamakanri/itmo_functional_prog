@@ -9,13 +9,9 @@ on:
 jobs:
   lint-and-build:
     runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        folder: lab1
     defaults:
       run:
-        working-directory: ${{matrix.folder}}
+        working-directory: lab1
 
     steps:
       - name: Checkout code
@@ -27,36 +23,23 @@ jobs:
           otp-version: '26.0'      
           rebar3-version: '3.24.0'  
 
-      
       - name: Check code formatting with erlfmt
-        run: |
-          # Автоформатирование: если есть несоответствия, CI упадёт
-          rebar3 fmt --check --verbose
+        run: rebar3 fmt --check --verbose
 
-     
       - name: Run rebar3 lint
-        run: |
-          rebar3 lint
+        run: rebar3 lint
 
-      
       - name: Compile project
-        run: |
-          rebar3 compile
+        run: rebar3 compile
 
-      
       - name: Run Dialyzer
-        run: |
-          rebar3 dialyzer
+        run: rebar3 dialyzer
 
   test:
     runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        folder:lab1 
     defaults:
       run:
-        working-directory: ${{matrix.folder}}
+        working-directory: lab1
 
     steps:
       - name: Checkout code
@@ -68,17 +51,11 @@ jobs:
           otp-version: '26.0'      
           rebar3-version: '3.24.0' 
 
-     
       - name: Compile project
-        run: |
-          rebar3 compile
+        run: rebar3 compile
 
- 
       - name: Run EUnit tests
-        run: |
-          rebar3 eunit -v
+        run: rebar3 eunit -v
 
-      
       - name: Run Proper tests
-        run: |
-          rebar3 proper
+        run: rebar3 proper
