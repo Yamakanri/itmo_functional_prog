@@ -2,55 +2,70 @@ name: Erlang CI
 
 on:
   push:
-    branches: [main]
-  pull_request:
-    branches: [main]
-
+    branches: [ "main" ]
 jobs:
-  build:
+  lint:
     runs-on: ubuntu-latest
 
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
+    strategy:
+      matrix:
+        folder: [lab1, lab2]
 
-      - name: Setup Erlang/OTP
+    defaults:
+      run:
+        working-directory: ${{matrix.folder}}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Erlang
         uses: erlef/setup-beam@v1
         with:
-          otp-version: 28
+          otp-version: '26.0'
+          rebar3-version: '3.24.0'
 
-      - name: Install rebar3
-        run: |
-          wget https://s3.amazonaws.com/rebar3/rebar3
-          chmod +x rebar3
-          sudo mv rebar3 /usr/local/bin/
-          rebar3 --version
-
-      - name: Install erlfmt
-        run: |
-        wget https://github.com/WhatsApp/erlfmt/releases/download/v0.11.0/erlfmt-0.11.0-linux-amd64 -O erlfmt
-        chmod +x erlfmt
-        sudo mv erlfmt /usr/local/bin/
-        erlfmt --version
-
-      - name: Format code
-        run: |
-          erlfmt src test
-
-      - name: Compile project
+      - name: Build App
         run: |
           rebar3 compile
 
-     
-      - name: Run lint
+      - name: Code formatting erlfmt test
         run: |
-          rebar3 lint
+          rebar3 fmt --check --verbose
+    
 
-      - name: Run EUnit tests
+      - name: Run dialyzer
         run: |
-          rebar3 eunit
+          rebar3 dialyzer
 
-      - name: Check for unwanted files
+  test:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        folder: [lab1, lab2]
+
+    defaults:
+      run:
+        working-directory: ${{matrix.folder}}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Erlang
+        uses: erlef/setup-beam@v1
+        with:
+          otp-version: '26.0'
+          rebar3-version: '3.24.0'
+
+      - name: Build App
         run: |
-          git ls-files --exclude-standard --others --ignored --directory
-          # Этот шаг покажет, что нет лишних файлов, можно CI падать при наличии
+          rebar3 compile
+
+      - name: Run Eunit tests
+        run: |
+          rebar3 eunit -v
+      - name: Run Proper tests
+        run: |
+          rebar3 proper
