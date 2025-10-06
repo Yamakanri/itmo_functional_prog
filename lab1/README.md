@@ -113,7 +113,6 @@ sum([H|T]) -> sum(T) + H.
 
 #НА РЕМОНТЕ
 ## Модульное решение (генерация списков, фильтрация, свертка)
-**(Есть версия лаконичнее, но без генерации списков, кроме такого варианта ее просто не впихнуть)**
 ```erlang
 start() ->
   FactorialSums = generator(),
@@ -128,7 +127,7 @@ generator() -> [X * (X + 1) || X <- lists:seq(1, 99, 2)].
 svertka(List) ->
   lists:foldl(fun(Item, Acc) -> Acc * Item end, 1, List).
 
-% Причина - integer_to_cherlist возвращает в ASCII
+% Причина - integer_to_list возвращает в список ASCII
 number_to_digits(Number) ->
   [C - $0 || C <- integer_to_list(Number)].
 
