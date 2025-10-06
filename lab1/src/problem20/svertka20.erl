@@ -15,6 +15,6 @@ number_to_digits(Number) ->
   [C - 48 || C <- integer_to_list(Number)].
 
 filtration(List) ->
-  lists:filter(fun(Item) -> Item=/=0 end, List).
+  lists:filter(fun(Item) -> Item =/= 0 end, List).
 
 sum_folding(List) -> lists:foldl(fun(Item, Acc) -> Acc + Item end, 0, List).
