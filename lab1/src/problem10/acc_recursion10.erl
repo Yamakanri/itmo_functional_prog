@@ -1,4 +1,4 @@
--module(accRecursion10).
+-module(acc_recursion10).
 -export([start/0]).
 
 
