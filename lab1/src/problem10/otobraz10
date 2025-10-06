@@ -3,10 +3,6 @@
 -export([start/0]).
 
 
-
-  %Формально функция выполняет отображение
-  % start() ->  2 + lists:sum([X || X <- lists:seq(3, 2000000, 2), is_prime(X)]).
-
   start() ->
       Seq = lists:seq(3, 2000000, 2),
       Sum = lists:sum(lists:map(fun(X) ->
