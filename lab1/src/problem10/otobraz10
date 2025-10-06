@@ -1,0 +1,26 @@
+-module(otobraz10).
+
+-export([start/0]).
+
+
+
+  %Формально функция выполняет отображение
+  % start() ->  2 + lists:sum([X || X <- lists:seq(3, 2000000, 2), is_prime(X)]).
+
+  start() ->
+      Seq = lists:seq(3, 2000000, 2),
+      Sum = lists:sum(lists:map(fun(X) ->
+        case is_prime(X) of
+          true  -> X;
+          false -> 0
+        end
+                                end, Seq)),
+      2 + Sum.
+
+% Проверка на простоту
+is_prime(2) -> true;
+is_prime(N) -> is_prime(N, 3).
+
+is_prime(N, D) when D * D > N -> true;
+is_prime(N, D) when N rem D =:= 0 -> false;
+is_prime(N, D) -> is_prime(N, D + 2).
