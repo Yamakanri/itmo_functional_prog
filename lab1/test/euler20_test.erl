@@ -7,7 +7,7 @@
 
 euler20_recursion_test() -> ?assertEqual(?ANSWER, recursion20:start()).
 
-euler20_tail_recursion_test() -> ?assertEqual(?ANSWER, accRecursion20:start()).
+euler20_tail_recursion_test() -> ?assertEqual(?ANSWER, acc_recursion20:start()).
 
 euler20_modular_test() -> ?assertEqual(?ANSWER, svertka20:start()).
 
