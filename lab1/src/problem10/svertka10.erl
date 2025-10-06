@@ -6,7 +6,7 @@
 
 start() -> folding(filtration(generating(3, 2000000)), 2).
 
-generating(Start, Limit) -> [X|| X<-lists:seq(Start,Limit, 2)].
+generating(Start, Limit) -> [X || X <- lists:seq(Start, Limit, 2)].
 
 filtration(Numbers) ->
   lists:filter(fun is_prime/1, Numbers).
