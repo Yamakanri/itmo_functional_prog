@@ -6,10 +6,12 @@ The sum of the primes below 10 is 2+3+5+7=17. Find the sum of all the primes bel
 
 ## Решение с помощью хвостовой рекурсии
 ```erlang
-start() -> sum_primes(3, 2000000, 2).
+start() ->
+  sum_primes(3, 2000000, 2).
 
 
-sum_primes(Current, Limit, Sum) when Current >= Limit -> Sum;
+sum_primes(Current, Limit, Sum) when Current >= Limit ->
+  Sum;
 sum_primes(Current, Limit, Sum) ->
   NewSum = case is_prime(Current, 3) of
              true  -> Sum + Current;
@@ -51,7 +53,7 @@ is_prime(Num, Div) -> is_prime(Num, Div + 2).
 start() -> folding(filtration(generating(3, 2000000)), 2).
 
 
-generating(Start, Limit) -> [X|| X<-lists:seq(Start,Limit, 2)].
+generating(Start, Limit) -> [X || X<-lists:seq(Start,Limit, 2)].
 
 
 filtration(Numbers) ->
@@ -85,7 +87,6 @@ start() ->
       2 + Sum.
 
 
-is_prime(2) -> true;
 is_prime(N) -> is_prime(N, 3).
 is_prime(N, D) when D * D > N -> true;
 is_prime(N, D) when N rem D =:= 0 -> false;
@@ -169,7 +170,7 @@ multiplier_folding(List) ->
 
 
 number_to_digits(Number) ->
-  [C - 48 || C <- integer_to_list(Number)].
+  [C - $0 || C <- integer_to_list(Number)].
 
 
 filtration(List) ->
