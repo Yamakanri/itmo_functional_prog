@@ -67,11 +67,14 @@ jobs:
           otp-version: '26.0'
           rebar3-version: '3.25.0'
 
+      - name: Clean build artifacts
+        run: rebar3 clean
+
       - name: Compile project
         run: rebar3 compile
 
       - name: Run EUnit tests
-        run: rebar3 as test compile && rebar3 eunit -v
+        run: rebar3 eunit -v
 
       - name: Run Proper tests
         run: rebar3 proper
