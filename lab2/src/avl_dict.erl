@@ -1,4 +1,4 @@
--module(tree_cur).
+-module(avl_dict).
 -author("sasha").
 
 
@@ -99,29 +99,32 @@ rebalance(nil) ->
 rebalance(Node) ->
   UpdatedNode = update_height(Node),
   BF = balance_factor(UpdatedNode),
-  if
-    BF > 1 ->
+  case BF > 1 of
+    true ->
       #node{left = LeftChild} = UpdatedNode,
       LeftBF = balance_factor(LeftChild),
-      if
-        LeftBF < 0 ->
+      case LeftBF < 0 of
+        true ->
           NewLeft = rotate_left(LeftChild),
           rotate_right(UpdatedNode#node{left = NewLeft});
-        true ->
+        false ->
           rotate_right(UpdatedNode)
       end;
-    BF < -1 ->
-      #node{right = RightChild} = UpdatedNode,
-      RightBF = balance_factor(RightChild),
-      if
-        RightBF > 0 ->
-          NewRight = rotate_right(RightChild),
-          rotate_left(UpdatedNode#node{right = NewRight});
+    false ->
+      case BF < -1 of
         true ->
-          rotate_left(UpdatedNode)
-      end;
-    true ->
-      UpdatedNode
+          #node{right = RightChild} = UpdatedNode,
+          RightBF = balance_factor(RightChild),
+          case RightBF > 0 of
+            true ->
+              NewRight = rotate_right(RightChild),
+              rotate_left(UpdatedNode#node{right = NewRight});
+            false ->
+              rotate_left(UpdatedNode)
+          end;
+        false ->
+          UpdatedNode
+      end
   end.
 
 %% Map
@@ -204,4 +207,3 @@ equal(_, nil) ->
 equal(#node{key = K1, value = V1, left = L1, right = R1},
       #node{key = K2, value = V2, left = L2, right = R2}) ->
   (K1 =:= K2) andalso (V1 =:= V2) andalso equal(L1, L2) andalso equal(R1, R2).
-
