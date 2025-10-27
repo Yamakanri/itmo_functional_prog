@@ -9,9 +9,12 @@ on:
 jobs:
   lint-build-format:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        lab: [lab1, lab2]
     defaults:
       run:
-        working-directory: lab1
+        working-directory: ${{ matrix.lab }}
 
     steps:
       - name: Checkout code
@@ -25,14 +28,13 @@ jobs:
           otp-version: '26.0'
           rebar3-version: '3.25.0'
 
-      # Автоформатирование кода с erlfmt
       - name: Auto format code with erlfmt
         run: |
           rebar3 fmt -w
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git add .
-          git commit -m "Auto format code with erlfmt" || echo "No changes to commit"
+          git commit -m "Auto format code with erlfmt [${{ matrix.lab }}]" || echo "No changes to commit"
           git push || echo "Push failed, possibly no changes"
 
       - name: Run rebar3 lint
@@ -46,9 +48,12 @@ jobs:
 
   test:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        lab: [lab1, lab2]
     defaults:
       run:
-        working-directory: lab1
+        working-directory: ${{ matrix.lab }}
 
     steps:
       - name: Checkout code
