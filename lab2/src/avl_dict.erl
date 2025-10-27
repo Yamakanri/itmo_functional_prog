@@ -1,6 +1,4 @@
 -module(avl_dict).
--author("sasha").
-
 
 
 -export([new/0, insert/3, delete/2, find/2]).
