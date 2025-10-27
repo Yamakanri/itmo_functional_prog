@@ -1,8 +1,0 @@
-{application, lab2, [
-    {description, "AVL Dictionary Tree"},
-    {vsn, "1.0.0"},
-    {modules, []},
-    {registered, []},
-    {applications, [kernel, stdlib]}
-]}.
-
