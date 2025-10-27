@@ -73,8 +73,6 @@ balance_factor(#node{left = L, right = R}) ->
   tree_height(L) - tree_height(R).
 
 %% Повороты
-rotate_right(#node{left = nil} = Node) ->
-  Node;
 rotate_right(#node{key = K, value = V, left = LeftNode, right = R}) ->
   #node{key = LK, value = LV, left = LL, right = LR} = LeftNode,
   NewRight = #node{key = K, value = V, left = LR, right = R, height = 1},
@@ -82,8 +80,6 @@ rotate_right(#node{key = K, value = V, left = LeftNode, right = R}) ->
   NewRoot = #node{key = LK, value = LV, left = LL, right = UpdatedRight, height = 1},
   update_height(NewRoot).
 
-rotate_left(#node{right = nil} = Node) ->
-  Node;
 rotate_left(#node{key = K, value = V, left = L, right = RightNode}) ->
   #node{key = RK, value = RV, left = RL, right = RR} = RightNode,
   NewLeft = #node{key = K, value = V, left = L, right = RL, height = 1},
