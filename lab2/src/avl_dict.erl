@@ -88,8 +88,6 @@ rotate_left(#node{key = K, value = V, left = L, right = RightNode}) ->
   update_height(NewRoot).
 
 %% Балансировка
-rebalance(nil) ->
-  nil;
 rebalance(Node) ->
   UpdatedNode = update_height(Node),
   BF = balance_factor(UpdatedNode),
