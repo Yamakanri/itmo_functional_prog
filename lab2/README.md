@@ -42,13 +42,6 @@
 ### Реализация
 
 ```erlang
--module(avl_dict).
-
-
--export([new/0, insert/3, delete/2, find/2]).
--export([map/2, filter/2, fold_left/3, fold_right/3]).
--export([empty/0, concat/2, merge/3]).
--export([from_list/1, to_list/1, size_custom/1, equal/2]).
 
 -record(node, {key, value, left = nil, right = nil, height = 1}).
 
