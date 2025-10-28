@@ -42,6 +42,14 @@
 ### Реализация
 
 ```erlang
+-module(avl_dict).
+
+
+-export([new/0, insert/3, delete/2, find/2]).
+-export([map/2, filter/2, fold_left/3, fold_right/3]).
+-export([empty/0, concat/2, merge/3]).
+-export([from_list/1, to_list/1, size_custom/1, equal/2]).
+
 -record(node, {key, value, left = nil, right = nil, height = 1}).
 -type tree() :: nil | #node{}.
 -export_type([tree/0]).
@@ -109,8 +117,6 @@ balance_factor(#node{left = L, right = R}) ->
   tree_height(L) - tree_height(R).
 
 %% Повороты
-rotate_right(#node{left = nil} = Node) ->
-  Node;
 rotate_right(#node{key = K, value = V, left = LeftNode, right = R}) ->
   #node{key = LK, value = LV, left = LL, right = LR} = LeftNode,
   NewRight = #node{key = K, value = V, left = LR, right = R, height = 1},
@@ -118,8 +124,6 @@ rotate_right(#node{key = K, value = V, left = LeftNode, right = R}) ->
   NewRoot = #node{key = LK, value = LV, left = LL, right = UpdatedRight, height = 1},
   update_height(NewRoot).
 
-rotate_left(#node{right = nil} = Node) ->
-  Node;
 rotate_left(#node{key = K, value = V, left = L, right = RightNode}) ->
   #node{key = RK, value = RV, left = RL, right = RR} = RightNode,
   NewLeft = #node{key = K, value = V, left = L, right = RL, height = 1},
@@ -128,34 +132,35 @@ rotate_left(#node{key = K, value = V, left = L, right = RightNode}) ->
   update_height(NewRoot).
 
 %% Балансировка
-rebalance(nil) ->
-  nil;
 rebalance(Node) ->
   UpdatedNode = update_height(Node),
   BF = balance_factor(UpdatedNode),
-  if
-    BF > 1 ->
+  case BF > 1 of
+    true ->
       #node{left = LeftChild} = UpdatedNode,
       LeftBF = balance_factor(LeftChild),
-      if
-        LeftBF < 0 ->
+      case LeftBF < 0 of
+        true ->
           NewLeft = rotate_left(LeftChild),
           rotate_right(UpdatedNode#node{left = NewLeft});
-        true ->
+        false ->
           rotate_right(UpdatedNode)
       end;
-    BF < -1 ->
-      #node{right = RightChild} = UpdatedNode,
-      RightBF = balance_factor(RightChild),
-      if
-        RightBF > 0 ->
-          NewRight = rotate_right(RightChild),
-          rotate_left(UpdatedNode#node{right = NewRight});
+    false ->
+      case BF < -1 of
         true ->
-          rotate_left(UpdatedNode)
-      end;
-    true ->
-      UpdatedNode
+          #node{right = RightChild} = UpdatedNode,
+          RightBF = balance_factor(RightChild),
+          case RightBF > 0 of
+            true ->
+              NewRight = rotate_right(RightChild),
+              rotate_left(UpdatedNode#node{right = NewRight});
+            false ->
+              rotate_left(UpdatedNode)
+          end;
+        false ->
+          UpdatedNode
+      end
   end.
 
 %% Map
@@ -190,13 +195,13 @@ fold_right(Fun, Acc, #node{key = K, value = V, left = L, right = R}) ->
   Acc2 = Fun(K, V, Acc1),
   fold_right(Fun, Acc2, L).
 
-%% Моноид
+%% Моноидные операции
 concat(Tree1, nil) ->
   Tree1;
 concat(Tree1, Tree2) ->
   fold_left(fun(K, V, Acc) -> insert(Acc, K, V) end, Tree1, Tree2).
 
-%% Тоже самое что и concat, но с разрешением проблемы одинаковых ключей (не неоьходимо но пусть будет)
+%% Конкатенация с обработкой повторяющихся ключей (необязательно, но тогда полнота моноида при любых ситуациях)
 merge(_ResolveFun, Tree1, nil) ->
   Tree1;
 merge(_ResolveFun, nil, Tree2) ->
@@ -239,7 +244,6 @@ equal(_, nil) ->
 equal(#node{key = K1, value = V1, left = L1, right = R1},
       #node{key = K2, value = V2, left = L2, right = R2}) ->
   (K1 =:= K2) andalso (V1 =:= V2) andalso equal(L1, L2) andalso equal(R1, R2).
-
 ```
 
 ### Тестрирование
