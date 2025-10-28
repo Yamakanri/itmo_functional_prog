@@ -51,8 +51,7 @@
 -export([from_list/1, to_list/1, size_custom/1, equal/2]).
 
 -record(node, {key, value, left = nil, right = nil, height = 1}).
--type tree() :: nil | #node{}.
--export_type([tree/0]).
+
 
 %% Создание
 new() -> nil.
