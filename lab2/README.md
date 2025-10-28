@@ -196,6 +196,7 @@ concat(Tree1, nil) ->
 concat(Tree1, Tree2) ->
   fold_left(fun(K, V, Acc) -> insert(Acc, K, V) end, Tree1, Tree2).
 
+%% Тоже самое что и concat, но с разрешением проблемы одинаковых ключей (не неоьходимо но пусть будет)
 merge(_ResolveFun, Tree1, nil) ->
   Tree1;
 merge(_ResolveFun, nil, Tree2) ->
