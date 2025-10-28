@@ -54,7 +54,7 @@ prop_insert_find_test() ->
     ).
 
 
-
+%Саппорт функция для создания тестовых деревьев из списка ключей
 store_keys(Keys) -> store_keys(Keys, tree_cur:new()).
 
 store_keys([], Dict) ->
