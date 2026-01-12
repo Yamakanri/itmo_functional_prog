@@ -2,37 +2,39 @@ name: Erlang CI
 
 on:
   push:
-    branches: ["main"]
+    branches: [ main ]
   pull_request:
-    branches: ["main"]
+    branches: [ main ]
 
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Проверяем репозиторий
+      # 1. Клонируем репозиторий
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      # 2. Устанавливаем Erlang/OTP
-      - name: Setup Erlang/OTP
+      # 2. Устанавливаем Erlang/OTP и Rebar3
+      - name: Setup Erlang/OTP and Rebar3
         uses: erlef/setup-beam@v1
         with:
-          otp-version: '26'
+          otp-version: '26'          # последняя ветка 26.x
           version-type: loose
-          rebar3-version: '3.22.1'
-          
+          rebar3-version: '3.22.1'   # стабильная версия
+          install-hex: true
+          install-rebar: true
 
-      # 3. Проверяем версию Erlang и Rebar3
+      # 3. Показываем версии
       - name: Show versions
         run: |
           erl -version
           rebar3 version
 
-      # 4. Делаем скрипт исполняемым (на случай если не был)
+      # 4. Делаем скрипт исполняемым
       - name: Make run_tests.sh executable
         run: chmod +x lab3/scripts/run_tests.sh
 
+      # 5. Запускаем все тесты
       - name: Run all tests
         run: lab3/scripts/run_tests.sh
