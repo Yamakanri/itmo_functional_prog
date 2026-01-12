@@ -19,7 +19,8 @@ jobs:
       - name: Setup Erlang/OTP
         uses: erlef/setup-beam@v1
         with:
-          otp-version: '26.3'
+          otp-version: '26'
+          version-type: loose
           rebar3-version: '3.21.5' # можно указать последнюю стабильную
 
       # 3. Проверяем версию Erlang и Rebar3
