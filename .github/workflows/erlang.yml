@@ -37,39 +37,47 @@ jobs:
         continue-on-error: true
 
   test:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Erlang + rebar3
-        uses: erlef/setup-beam@v1
-        with:
-          otp-version: '26.0'
-          rebar3-version: '3.25.0'
-
-      - name: Compile proc version
-        run: |
-          cd proc
-          rebar3 clean
-          rebar3 compile
-
-      - name: Compile gen_server version
-        run: |
-          cd gen_server
-          rebar3 clean
-          rebar3 compile
-
-      - name: Compile tests
-        run: |
-          cd test
-          erl -compile *.erl || true
-
-      - name: Run EUnit tests
-        run: |
-          erl -pa proc/_build/default/lib/lab3/ebin \
-              -pa gen_server/_build/default/lib/lab3_gen_server/ebin \
-              -pa test \
+      runs-on: ubuntu-latest
+    
+      steps:
+        - name: Checkout code
+          uses: actions/checkout@v4
+    
+        - name: Setup Erlang + rebar3
+          uses: erlef/setup-beam@v1
+          with:
+            otp-version: '26.0'
+            rebar3-version: '3.25.0'
+    
+        - name: Compile proc version
+          working-directory: lab3/src/proc
+          run: |
+            rebar3 clean
+            rebar3 compile
+    
+        - name: Compile gen_server version
+          working-directory: lab3/src/gen_server
+          run: |
+            rebar3 clean
+            rebar3 compile
+    
+        - name: Compile tests
+          working-directory: lab3/test
+          run: |
+            erl -compile *.erl || true
+    
+        - name: Run EUnit tests
+          run: |
+            erl \
+              -pa lab3/src/proc/_build/default/lib/lab3/ebin \
+              -pa lab3/src/gen_server/_build/default/lib/lab3_gen_server/ebin \
+              -pa lab3/test \
               -noshell \
-              -eval "eunit:test([proc_parser_test, proc_linear_interpolation_test, proc_lagrange_interpolation_test, proc_points_generator_test, gen_server_parser_test, gen_server_interpolation_test], [verbose]), init:stop()."
+              -eval "eunit:test([
+                proc_parser_test,
+                proc_linear_interpolation_test,
+                proc_lagrange_interpolation_test,
+                proc_points_generator_test,
+                gen_server_parser_test,
+                gen_server_interpolation_test
+              ], [verbose]), init:stop()."
