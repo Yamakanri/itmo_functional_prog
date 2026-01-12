@@ -22,7 +22,15 @@ jobs:
         uses: erlef/setup-beam@v1
         with:
           otp-version: ${{ matrix.otp }}
-          rebar3-version: latest
+
+      - name: Install rebar3
+        run: |
+          wget https://s3.amazonaws.com/rebar3/rebar3
+          chmod +x rebar3
+          sudo mv rebar3 /usr/local/bin/
+
+      - name: Verify rebar3
+        run: rebar3 version
 
       - name: Cache rebar3 build
         uses: actions/cache@v4
