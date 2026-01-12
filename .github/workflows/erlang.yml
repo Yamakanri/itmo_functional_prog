@@ -20,48 +20,20 @@ jobs:
           otp-version: '26.0'
           rebar3-version: '3.25.0'
 
-      - name: Compile source modules
+      - name: Compile all source modules
         run: |
-          erl -noshell -pa src/proc -pa src/gen_server -eval "
-            compile:file('src/proc/linear_interpolation.erl', [report]),
-            compile:file('src/proc/lagrange_interpolation.erl', [report]),
-            compile:file('src/proc/interpolation.erl', [report]),
-            compile:file('src/proc/main.erl', [report]),
-            compile:file('src/proc/io_server.erl', [report]),
-            compile:file('src/proc/lab3_app.erl', [report]),
-            compile:file('src/proc/lab3_sup.erl', [report]),
-            compile:file('src/gen_server/lagrange_server.erl', [report]),
-            compile:file('src/gen_server/lab3_gen_server_app.erl', [report]),
-            compile:file('src/gen_server/lab3_gen_server_sup.erl', [report]),
-            compile:file('src/gen_server/interpolation_sup.erl', [report]),
-            compile:file('src/gen_server/output_server.erl', [report]),
-            compile:file('src/gen_server/input_server.erl', [report]),
-            compile:file('src/gen_server/interpolation_server.erl', [report]),
-            compile:file('src/gen_server/linear_server.erl', [report]),
-            init:stop().
-          "
+          erl -noshell -pa src/proc -pa src/gen_server \
+              -eval "for_each(File, ['linear_interpolation','lagrange_interpolation','interpolation','main','io_server','lab3_app','lab3_sup'], fun(F) -> compile:file(lists:concat(['src/proc/', F, '.erl']), [report]) end), \
+                     for_each(File, ['lagrange_server','lab3_gen_server_app','lab3_gen_server_sup','interpolation_sup','output_server','input_server','interpolation_server','linear_server'], fun(F) -> compile:file(lists:concat(['src/gen_server/', F, '.erl']), [report]) end), init:stop()."
 
-      - name: Compile test modules
+      - name: Compile all test modules
         run: |
-          erl -noshell -pa src/proc -pa src/gen_server -pa src/proc/test -pa src/gen_server/test -eval "
-            compile:file('src/proc/test/proc_linear_interpolation_test.erl', [report]),
-            compile:file('src/proc/test/proc_parser_test.erl', [report]),
-            compile:file('src/proc/test/proc_points_generator_test.erl', [report]),
-            compile:file('src/proc/test/proc_lagrange_interpolation_test.erl', [report]),
-            compile:file('src/gen_server/test/gen_server_interpolation_test.erl', [report]),
-            compile:file('src/gen_server/test/gen_server_parser_test.erl', [report]),
-            init:stop().
-          "
+          erl -noshell -pa src/proc -pa src/gen_server -pa src/proc/test -pa src/gen_server/test \
+              -eval "for_each(File, ['proc_linear_interpolation_test','proc_parser_test','proc_points_generator_test','proc_lagrange_interpolation_test'], fun(F) -> compile:file(lists:concat(['src/proc/test/', F, '.erl']), [report]) end), \
+                     for_each(File, ['gen_server_interpolation_test','gen_server_parser_test'], fun(F) -> compile:file(lists:concat(['src/gen_server/test/', F, '.erl']), [report]) end), init:stop()."
 
       - name: Run EUnit tests
         run: |
           erl -pa src/proc -pa src/gen_server -pa src/proc/test -pa src/gen_server/test \
               -noshell \
-              -eval "eunit:test([
-                        proc_linear_interpolation_test,
-                        proc_parser_test,
-                        proc_points_generator_test,
-                        proc_lagrange_interpolation_test,
-                        gen_server_interpolation_test,
-                        gen_server_parser_test
-                    ], [verbose]), init:stop()."
+              -eval "eunit:test([proc_linear_interpolation_test,proc_parser_test,proc_points_generator_test,proc_lagrange_interpolation_test,gen_server_interpolation_test,gen_server_parser_test],[verbose]), init:stop()."
