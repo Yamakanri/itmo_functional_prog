@@ -9,15 +9,9 @@ on:
 jobs:
   lint-build-format:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./src  # базовая директория, из которой будет запускаться rebar3
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Setup Erlang + rebar3
         uses: erlef/setup-beam@v1
@@ -45,15 +39,9 @@ jobs:
 
   test:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./src
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Setup Erlang + rebar3
         uses: erlef/setup-beam@v1
