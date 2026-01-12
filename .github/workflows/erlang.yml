@@ -25,10 +25,12 @@ jobs:
           otp-version: '26.0'
           rebar3-version: '3.25.0'
 
+      # Компилируем из корня проекта lab3
       - name: Compile application
-        working-directory: ./lab3/src/${{ matrix.app }}
-        run: rebar3 compile
+        working-directory: ./lab3
+        run: rebar3 clean compile
 
+      # Запускаем все EUnit тесты из корня
       - name: Run EUnit tests
-        working-directory: ./lab3/src/${{ matrix.app }}
+        working-directory: ./lab3
         run: rebar3 eunit
