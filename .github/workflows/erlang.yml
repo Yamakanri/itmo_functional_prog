@@ -23,11 +23,13 @@ jobs:
         with:
           otp-version: ${{ matrix.otp }}
 
-      - name: Install rebar3
+      - name: Install rebar3 (official)
         run: |
-          wget https://s3.amazonaws.com/rebar3/rebar3
-          chmod +x rebar3
-          sudo mv rebar3 /usr/local/bin/
+          mkdir -p $HOME/bin
+          curl -fsSL https://raw.githubusercontent.com/erlang/rebar3/master/rebar3 \
+            -o $HOME/bin/rebar3
+          chmod +x $HOME/bin/rebar3
+          echo "$HOME/bin" >> $GITHUB_PATH
 
       - name: Verify rebar3
         run: rebar3 version
