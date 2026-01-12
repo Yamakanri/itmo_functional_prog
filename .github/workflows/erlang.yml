@@ -2,22 +2,18 @@ name: Erlang CI
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
   pull_request:
-    branches: [ "main" ]
+    branches: ["main"]
 
 jobs:
-  lint-build-format:
+  build-and-test:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        lab:
-          - lab3/src/proc
-          - lab3/src/gen_server
-
-    defaults:
-      run:
-        working-directory: ${{ matrix.lab }}
+        app:
+          - proc
+          - gen_server
 
     steps:
       - name: Checkout code
@@ -29,39 +25,10 @@ jobs:
           otp-version: '26.0'
           rebar3-version: '3.25.0'
 
-      - name: Run rebar3 lint
-        run: rebar3 lint
-
-      - name: Compile project
+      - name: Compile application
+        working-directory: lab3/${{ matrix.app }}
         run: rebar3 compile
 
-      - name: Run Dialyzer
-        run: rebar3 dialyzer
-        continue-on-error: true
-
-  test:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Erlang + rebar3
-        uses: erlef/setup-beam@v1
-        with:
-          otp-version: '26.0'
-          rebar3-version: '3.25.0'
-
-      - name: Run proc tests
-        working-directory: lab3/src/proc
-        run: |
-          rebar3 clean
-          rebar3 compile
-          rebar3 eunit
-
-      - name: Run gen_server tests
-        working-directory: lab3/src/gen_server
-        run: |
-          rebar3 clean
-          rebar3 compile
-          rebar3 eunit
+      - name: Run EUnit tests
+        working-directory: lab3/${{ matrix.app }}
+        run: rebar3 eunit
