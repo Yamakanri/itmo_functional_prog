@@ -9,11 +9,6 @@ on:
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        app:
-          - proc
-          - gen_server
 
     steps:
       - name: Checkout code
@@ -25,12 +20,12 @@ jobs:
           otp-version: '26.0'
           rebar3-version: '3.25.0'
 
-      # Компилируем из корня проекта lab3
-      - name: Compile application
+      # Компиляция из корня lab3
+      - name: Compile all apps
         working-directory: ./lab3
         run: rebar3 clean compile
 
-      # Запускаем все EUnit тесты из корня
-      - name: Run EUnit tests
+      # Запуск всех EUnit тестов
+      - name: Run all EUnit tests
         working-directory: ./lab3
         run: rebar3 eunit
