@@ -2,48 +2,36 @@ name: Erlang CI
 
 on:
   push:
-    branches: [ "**" ]
+    branches: ["main"]
   pull_request:
-    branches: [ "**" ]
+    branches: ["main"]
 
 jobs:
-  test:
+  build-and-test:
     runs-on: ubuntu-latest
 
-    strategy:
-      matrix:
-        otp: [26, 25, 24]
-
     steps:
+      # 1. Проверяем репозиторий
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v3
 
-      - name: Set up Erlang/OTP
+      # 2. Устанавливаем Erlang/OTP
+      - name: Setup Erlang/OTP
         uses: erlef/setup-beam@v1
         with:
-          otp-version: ${{ matrix.otp }}
+          otp-version: '26.3'
+          rebar3-version: '3.21.5' # можно указать последнюю стабильную
 
-      - name: Install rebar3 (official)
+      # 3. Проверяем версию Erlang и Rebar3
+      - name: Show versions
         run: |
-          mkdir -p $HOME/bin
-          curl -fsSL https://raw.githubusercontent.com/erlang/rebar3/master/rebar3 \
-            -o $HOME/bin/rebar3
-          chmod +x $HOME/bin/rebar3
-          echo "$HOME/bin" >> $GITHUB_PATH
+          erl -version
+          rebar3 version
 
-      - name: Verify rebar3
-        run: rebar3 version
+      # 4. Делаем скрипт исполняемым (на случай если не был)
+      - name: Make run_tests.sh executable
+        run: chmod +x scripts/run_tests.sh
 
-      - name: Cache rebar3 build
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.cache/rebar3
-            _build
-          key: rebar3-${{ runner.os }}-${{ matrix.otp }}-${{ hashFiles('rebar.config') }}
-
-      - name: Compile project
-        run: rebar3 compile
-
-      - name: Run tests
-        run: rebar3 as test eunit
+      # 5. Запускаем все тесты через наш скрипт
+      - name: Run all tests
+        run: ./scripts/run_tests.sh
