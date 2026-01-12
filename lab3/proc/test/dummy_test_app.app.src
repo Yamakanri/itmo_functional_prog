@@ -1,9 +1,0 @@
-{application, dummy_test_app,
- [
-  {description, "Dummy test app to make EUnit see tests"},
-  {vsn, "0.1.0"},
-  {modules, []},
-  {registered, []},
-  {applications, [kernel, stdlib]},
-  {mod, {dummy_test_app, []}}
- ]}.
