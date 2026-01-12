@@ -1,4 +1,4 @@
-name: Erlang CI
+name: Erlang CI (kостыль)
 
 on:
   push:
@@ -11,48 +11,48 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1️⃣ Забираем репозиторий
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # 2️⃣ Ставим Erlang и rebar3
       - name: Setup Erlang + rebar3
         uses: erlef/setup-beam@v1
         with:
           otp-version: '26.0'
           rebar3-version: '3.25.0'
 
-      # 3️⃣ Компиляция всех исходников
-      - name: Compile source modules
-        working-directory: ./lab3
+      # 1️⃣ Компиляция исходников
+      - name: Compile all source modules
+        working-directory: ./src
         run: rebar3 clean compile
 
-      # 4️⃣ Компиляция всех тестов вручную
-      - name: Compile test modules
-        working-directory: ./lab3
+      # 2️⃣ Компиляция тестов вручную (создаём .beam файлы)
+      - name: Compile all test modules
+        working-directory: ./src
         run: |
-          erl -noshell -pa src/proc -pa src/gen_server \
-              -eval "compile:file('src/proc/test/proc_linear_interpolation_test.erl', [report]), init:stop()."
-          erl -noshell -pa src/proc -pa src/gen_server \
-              -eval "compile:file('src/proc/test/proc_parser_test.erl', [report]), init:stop()."
-          erl -noshell -pa src/proc -pa src/gen_server \
-              -eval "compile:file('src/proc/test/proc_points_generator_test.erl', [report]), init:stop()."
-          erl -noshell -pa src/proc -pa src/gen_server \
-              -eval "compile:file('src/proc/test/proc_lagrange_interpolation_test.erl', [report]), init:stop()."
-          erl -noshell -pa src/proc -pa src/gen_server \
-              -eval "compile:file('src/gen_server/test/gen_server_interpolation_test.erl', [report]), init:stop()."
-          erl -noshell -pa src/proc -pa src/gen_server \
-              -eval "compile:file('src/gen_server/test/gen_server_parser_test.erl', [report]), init:stop()."
+          erl -noshell -pa _build/default/lib/src/ebin \
+              -eval "compile:file('proc/test/proc_linear_interpolation_test.erl', [report]), init:stop()."
+          erl -noshell -pa _build/default/lib/src/ebin \
+              -eval "compile:file('proc/test/proc_parser_test.erl', [report]), init:stop()."
+          erl -noshell -pa _build/default/lib/src/ebin \
+              -eval "compile:file('proc/test/proc_points_generator_test.erl', [report]), init:stop()."
+          erl -noshell -pa _build/default/lib/src/ebin \
+              -eval "compile:file('proc/test/proc_lagrange_interpolation_test.erl', [report]), init:stop()."
+          erl -noshell -pa _build/default/lib/src/ebin \
+              -eval "compile:file('gen_server/test/gen_server_interpolation_test.erl', [report]), init:stop()."
+          erl -noshell -pa _build/default/lib/src/ebin \
+              -eval "compile:file('gen_server/test/gen_server_parser_test.erl', [report]), init:stop()."
 
-      # 5️⃣ Запуск всех тестов через EUnit
+      # 3️⃣ Запуск всех тестов через EUnit
       - name: Run all EUnit tests
-        working-directory: ./lab3
+        working-directory: ./src
         run: |
-          erl -pa src/proc -pa src/gen_server -pa src/proc/test -pa src/gen_server/test \
+          erl -pa _build/default/lib/src/ebin \
               -noshell \
-              -eval "eunit:test([proc_linear_interpolation_test,
-                                  proc_parser_test,
-                                  proc_points_generator_test,
-                                  proc_lagrange_interpolation_test,
-                                  gen_server_interpolation_test,
-                                  gen_server_parser_test], [verbose]), init:stop()."
+              -eval "eunit:test([
+                          proc_linear_interpolation_test,
+                          proc_parser_test,
+                          proc_points_generator_test,
+                          proc_lagrange_interpolation_test,
+                          gen_server_interpolation_test,
+                          gen_server_parser_test
+                      ], [verbose]), init:stop()."
