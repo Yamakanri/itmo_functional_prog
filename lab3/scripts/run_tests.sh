@@ -1,8 +1,13 @@
-#!/bin/bash
-set -e
+#!/usr/bin/env bash
 
-echo "Компиляция run_tests.erl..."
-erl -noshell -eval "compile:file(\"scripts/run_tests.erl\"), halt()."
+echo "Запуск тестов Erlang через run_tests.erl..."
 
-echo "Запуск всех тестов..."
-erl -noshell -pa scripts -s run_tests all
+erl -noshell -pa ./ebin -eval "
+%% Компилируем run_tests.erl
+c(\"lab3/scripts/run_tests.erl\"),
+
+%% Запускаем функцию main
+run_tests:main(),
+
+halt().
+"
