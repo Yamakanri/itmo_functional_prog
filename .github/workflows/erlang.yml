@@ -1,4 +1,4 @@
-name: Erlang CI (kостыль)
+name: Erlang CI
 
 on:
   push:
@@ -20,14 +20,14 @@ jobs:
           otp-version: '26.0'
           rebar3-version: '3.25.0'
 
-      # 1️⃣ Компиляция исходников
+      # Компиляция исходников в lab3/src
       - name: Compile all source modules
-        working-directory: ./src
+        working-directory: ./lab3/src
         run: rebar3 clean compile
 
-      # 2️⃣ Компиляция тестов вручную (создаём .beam файлы)
+      # Компиляция тестов вручную (чтобы избежать undef)
       - name: Compile all test modules
-        working-directory: ./src
+        working-directory: ./lab3/src
         run: |
           erl -noshell -pa _build/default/lib/src/ebin \
               -eval "compile:file('proc/test/proc_linear_interpolation_test.erl', [report]), init:stop()."
@@ -42,9 +42,9 @@ jobs:
           erl -noshell -pa _build/default/lib/src/ebin \
               -eval "compile:file('gen_server/test/gen_server_parser_test.erl', [report]), init:stop()."
 
-      # 3️⃣ Запуск всех тестов через EUnit
+      # Запуск всех EUnit тестов
       - name: Run all EUnit tests
-        working-directory: ./src
+        working-directory: ./lab3/src
         run: |
           erl -pa _build/default/lib/src/ebin \
               -noshell \
