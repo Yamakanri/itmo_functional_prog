@@ -20,39 +20,57 @@ jobs:
           otp-version: '26.0'
           rebar3-version: '3.25.0'
 
-      # Компиляция исходников в lab3/src
-      - name: Compile all source modules
-        working-directory: ./lab3/src
-        run: rebar3 clean compile
-
-      # Компиляция тестов вручную (чтобы избежать undef)
-      - name: Compile all test modules
-        working-directory: ./lab3/src
+      - name: Compile all modules
         run: |
-          erl -noshell -pa _build/default/lib/src/ebin \
-              -eval "compile:file('proc/test/proc_linear_interpolation_test.erl', [report]), init:stop()."
-          erl -noshell -pa _build/default/lib/src/ebin \
-              -eval "compile:file('proc/test/proc_parser_test.erl', [report]), init:stop()."
-          erl -noshell -pa _build/default/lib/src/ebin \
-              -eval "compile:file('proc/test/proc_points_generator_test.erl', [report]), init:stop()."
-          erl -noshell -pa _build/default/lib/src/ebin \
-              -eval "compile:file('proc/test/proc_lagrange_interpolation_test.erl', [report]), init:stop()."
-          erl -noshell -pa _build/default/lib/src/ebin \
-              -eval "compile:file('gen_server/test/gen_server_interpolation_test.erl', [report]), init:stop()."
-          erl -noshell -pa _build/default/lib/src/ebin \
-              -eval "compile:file('gen_server/test/gen_server_parser_test.erl', [report]), init:stop()."
+          erl -noshell \
+              -pa src/proc -pa src/gen_server \
+              -eval "
+                l(module(compile)).
+                [compile:file(F, [report]) || F <- [
+                  'src/proc/linear_interpolation.erl',
+                  'src/proc/lagrange_interpolation.erl',
+                  'src/proc/interpolation.erl',
+                  'src/proc/main.erl',
+                  'src/proc/io_server.erl',
+                  'src/proc/lab3_app.erl',
+                  'src/proc/lab3_sup.erl',
+                  'src/gen_server/lagrange_server.erl',
+                  'src/gen_server/lab3_gen_server_app.erl',
+                  'src/gen_server/lab3_gen_server_sup.erl',
+                  'src/gen_server/interpolation_sup.erl',
+                  'src/gen_server/output_server.erl',
+                  'src/gen_server/input_server.erl',
+                  'src/gen_server/interpolation_server.erl',
+                  'src/gen_server/linear_server.erl'
+                ]],
+                init:stop().
+              "
 
-      # Запуск всех EUnit тестов
+      - name: Compile all tests
+        run: |
+          erl -noshell \
+              -pa src/proc -pa src/gen_server \
+              -eval "
+                [compile:file(F, [report]) || F <- [
+                  'src/proc/test/proc_linear_interpolation_test.erl',
+                  'src/proc/test/proc_parser_test.erl',
+                  'src/proc/test/proc_points_generator_test.erl',
+                  'src/proc/test/proc_lagrange_interpolation_test.erl',
+                  'src/gen_server/test/gen_server_interpolation_test.erl',
+                  'src/gen_server/test/gen_server_parser_test.erl'
+                ]],
+                init:stop().
+              "
+
       - name: Run all EUnit tests
-        working-directory: ./lab3/src
         run: |
-          erl -pa _build/default/lib/src/ebin \
+          erl -pa src/proc -pa src/gen_server -pa src/proc/test -pa src/gen_server/test \
               -noshell \
               -eval "eunit:test([
-                          proc_linear_interpolation_test,
-                          proc_parser_test,
-                          proc_points_generator_test,
-                          proc_lagrange_interpolation_test,
-                          gen_server_interpolation_test,
-                          gen_server_parser_test
-                      ], [verbose]), init:stop()."
+                        proc_linear_interpolation_test,
+                        proc_parser_test,
+                        proc_points_generator_test,
+                        proc_lagrange_interpolation_test,
+                        gen_server_interpolation_test,
+                        gen_server_parser_test
+                    ], [verbose]), init:stop()."
