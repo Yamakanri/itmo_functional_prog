@@ -1,10 +1,13 @@
 #!/usr/bin/env bash
 set -e
 
-echo "Запуск всех тестов через Rebar3 EUnit..."
+echo "Запуск тестов Erlang через run_tests.erl на GitHub Actions..."
 
-# Указываем путь к папке lab3
+# Переходим в корень lab3
 cd "$(dirname "$0")/../"
 
-# Собираем и запускаем все тесты
-rebar3 eunit -v
+# Компиляция run_tests.erl
+erl -noshell -eval "compile:file(\"scripts/run_tests.erl\"), halt()."
+
+# Запуск всех тестов через скомпилированный модуль
+erl -noshell -pa scripts -s run_tests all
