@@ -1,13 +1,53 @@
-#!/usr/bin/env bash
-set -e
+%% run_tests.erl
+%% Модуль для ручной компиляции всех исходников и тестов и их запуска
+-module(run_tests).
+-export([all/0]).
 
-echo "Запуск тестов Erlang через run_tests.erl на GitHub Actions..."
+all() ->
+    io:format("=== Компиляция исходников ===~n"),
+    lists:foreach(fun(F) -> 
+                      io:format("Компилируем ~s~n", [F]), 
+                      compile:file(F) 
+                  end,
+        ["proc/src/linear_interpolation.erl",
+         "proc/src/lab3_app.erl",
+         "proc/src/lagrange_interpolation.erl",
+         "proc/src/lab3_sup.erl",
+         "proc/src/main.erl",
+         "proc/src/interpolation.erl",
+         "proc/src/io_server.erl",
+         "gen_server/src/lab3_gen_server_sup.erl",
+         "gen_server/src/lab3_gen_server_app.erl",
+         "gen_server/src/lagrange_server.erl",
+         "gen_server/src/interpolation_sup.erl",
+         "gen_server/src/output_server.erl",
+         "gen_server/src/input_server.erl",
+         "gen_server/src/interpolation_server.erl",
+         "gen_server/src/linear_server.erl"]),
 
-# Переходим в корень lab3
-cd "$(dirname "$0")/../"
+    io:format("=== Компиляция тестов ===~n"),
+    lists:foreach(fun(F) ->
+                      io:format("Компилируем тест ~s~n", [F]), 
+                      compile:file(F) 
+                  end,
+        ["proc/test/proc_linear_interpolation_test.erl",
+         "proc/test/proc_parser_test.erl",
+         "proc/test/proc_points_generator_test.erl",
+         "proc/test/proc_lagrange_interpolation_test.erl",
+         "gen_server/test/gen_server_interpolation_test.erl",
+         "gen_server/test/gen_server_parser_test.erl"]),
 
-# Компиляция run_tests.erl
-erl -noshell -eval "compile:file(\"scripts/run_tests.erl\"), halt()."
+    io:format("=== Запуск тестов ===~n"),
+    TestModules = [proc_linear_interpolation_test,
+                   proc_parser_test,
+                   proc_points_generator_test,
+                   proc_lagrange_interpolation_test,
+                   gen_server_interpolation_test,
+                   gen_server_parser_test],
 
-# Запуск всех тестов через скомпилированный модуль
-erl -noshell -pa scripts -s run_tests all
+    lists:foreach(fun(M) ->
+                      io:format("\n=== Running ~p ===~n", [M]),
+                      eunit:test(M, [verbose])
+                  end, TestModules),
+
+    halt().
