@@ -1,13 +1,10 @@
 #!/usr/bin/env bash
+set -e
 
-echo "Запуск тестов Erlang через run_tests.erl..."
+echo "Запуск всех тестов через Rebar3 EUnit..."
 
-erl -noshell -pa ./ebin -eval "
-%% Компилируем run_tests.erl
-c(\"lab3/scripts/run_tests.erl\"),
+# Указываем путь к папке lab3
+cd "$(dirname "$0")/../"
 
-%% Запускаем функцию main
-run_tests:main(),
-
-halt().
-"
+# Собираем и запускаем все тесты
+rebar3 eunit -v
