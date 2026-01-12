@@ -32,8 +32,7 @@ jobs:
 
       # 4. Делаем скрипт исполняемым (на случай если не был)
       - name: Make run_tests.sh executable
-        run: chmod +x scripts/run_tests.sh
+        run: chmod +x lab3/scripts/run_tests.sh
 
-      # 5. Запускаем все тесты через наш скрипт
       - name: Run all tests
-        run: ./scripts/run_tests.sh
+        run: lab3/scripts/run_tests.sh
