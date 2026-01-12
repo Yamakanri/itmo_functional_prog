@@ -28,19 +28,19 @@ jobs:
               -eval "
                   lists:foreach(
                       fun(F) -> compile:file('src/proc/' ++ F ++ '.erl', [report]) end,
-                      ['linear_interpolation','lagrange_interpolation','interpolation','main','io_server','lab3_app','lab3_sup']
+                      [\"linear_interpolation\",\"lagrange_interpolation\",\"interpolation\",\"main\",\"io_server\",\"lab3_app\",\"lab3_sup\"]
                   ),
                   lists:foreach(
                       fun(F) -> compile:file('src/gen_server/' ++ F ++ '.erl', [report]) end,
-                      ['lagrange_server','lab3_gen_server_app','lab3_gen_server_sup','interpolation_sup','output_server','input_server','interpolation_server','linear_server']
+                      [\"lagrange_server\",\"lab3_gen_server_app\",\"lab3_gen_server_sup\",\"interpolation_sup\",\"output_server\",\"input_server\",\"interpolation_server\",\"linear_server\"]
                   ),
                   lists:foreach(
                       fun(F) -> compile:file('src/proc/test/' ++ F ++ '.erl', [report]) end,
-                      ['proc_linear_interpolation_test','proc_parser_test','proc_points_generator_test','proc_lagrange_interpolation_test']
+                      [\"proc_linear_interpolation_test\",\"proc_parser_test\",\"proc_points_generator_test\",\"proc_lagrange_interpolation_test\"]
                   ),
                   lists:foreach(
                       fun(F) -> compile:file('src/gen_server/test/' ++ F ++ '.erl', [report]) end,
-                      ['gen_server_interpolation_test','gen_server_parser_test']
+                      [\"gen_server_interpolation_test\",\"gen_server_parser_test\"]
                   ),
                   eunit:test([proc_linear_interpolation_test,proc_parser_test,proc_points_generator_test,proc_lagrange_interpolation_test,gen_server_interpolation_test,gen_server_parser_test],[verbose]),
                   init:stop().
