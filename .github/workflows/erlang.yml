@@ -26,9 +26,9 @@ jobs:
           rebar3-version: '3.25.0'
 
       - name: Compile application
-        working-directory: lab3/${{ matrix.app }}
+        working-directory: ./lab3/${{ matrix.app }}
         run: rebar3 compile
 
       - name: Run EUnit tests
-        working-directory: lab3/${{ matrix.app }}
+        working-directory: ./lab3/${{ matrix.app }}
         run: rebar3 eunit
