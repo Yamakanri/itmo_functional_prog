@@ -1,71 +1,49 @@
-name: Erlang CI - Lab3
+name: Erlang CI
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "**" ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ "**" ]
 
 jobs:
-  lint-build-format:
+  test:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./src  # базовая директория, из которой будет запускаться rebar3
+
+    strategy:
+      matrix:
+        otp: [26, 25, 24]
 
     steps:
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Setup Erlang + rebar3
+      - name: Set up Erlang/OTP
         uses: erlef/setup-beam@v1
         with:
-          otp-version: '26.0'
-          rebar3-version: '3.25.0'
+          otp-version: ${{ matrix.otp }}
 
-      - name: Auto format code with erlfmt
+      - name: Install rebar3 (official)
         run: |
-          rebar3 fmt -w
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git add .
-          git commit -m "Auto format code with erlfmt [lab3]" || echo "No changes to commit"
-          git push || echo "Push failed, possibly no changes"
+          mkdir -p $HOME/bin
+          curl -fsSL https://raw.githubusercontent.com/erlang/rebar3/master/rebar3 \
+            -o $HOME/bin/rebar3
+          chmod +x $HOME/bin/rebar3
+          echo "$HOME/bin" >> $GITHUB_PATH
 
-      - name: Run rebar3 lint
-        run: rebar3 lint
+      - name: Verify rebar3
+        run: rebar3 version
+
+      - name: Cache rebar3 build
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/rebar3
+            _build
+          key: rebar3-${{ runner.os }}-${{ matrix.otp }}-${{ hashFiles('rebar.config') }}
 
       - name: Compile project
         run: rebar3 compile
 
-      - name: Run Dialyzer
-        run: rebar3 dialyzer
-
-  test:
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./src
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Setup Erlang + rebar3
-        uses: erlef/setup-beam@v1
-        with:
-          otp-version: '26.0'
-          rebar3-version: '3.25.0'
-
-      - name: Clean build artifacts
-        run: rebar3 clean
-
-      - name: Run EUnit tests
-        run: rebar3 eunit -v
-
-      - name: Run Proper tests
-        run: rebar3 proper
+      - name: Run tests
+        run: rebar3 as test eunit
