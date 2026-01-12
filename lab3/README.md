@@ -27,4 +27,319 @@
 - Программа должна работать в потоковом режиме (пример -- cat | grep 11), это значит, что при запуске программы она должна ожидать получения данных на стандартный ввод, и, по мере получения достаточного количества данных, должна выводить рассчитанные точки в стандартный вывод;
 
 
+## Ключевые детали
+
+
+В работе выполнены две реализации с разными подходами:
+
+**proc – реализация с помощью простых процессов (spawn, !, recieve)**
+
+**gen_server – реализация с помощью OTP-паттернов (supervisor, gen_server)**
+
+Обе реализации по сути делают одно и тоже, но внутренние компоненты реализованы по разному. 
+
+Обобщенная архитектура выглядит следующим образом: 
+
+**(Входные данные) ->[Модуль ввода данных] -> [Модуль интерполяции] -> [Модуль вывода результатов] -> Выходные данные**
+
+
+
+## Реализация на простых процессах
+**Структура/назначение модулей:**
+1) main.erl – Главный модуль-супервизор
+2) io_server.erl – Модуль ввода/вывода
+3) interpolation.erl – Координатор интерполяции
+4) linear_interpolation.erl – Линейная интерполяция
+5) lagrange_interpolation.erl – Интерполяция Лагранжа
+
+**Абстрактная архитектура**
+
+```
+Пользователь вводит точку
+-> io_server считывает 
+-> отправляет в interpolation 
+-> interpolation отправляет в процессы интерполяции 
+-> процессы вычисляют результат 
+-> отправляют обратно в interpolation 
+-> interpolation отправляет в output
+-> output печатает результат
+```
+
+**spawn/recieve для супервизора:**
+
+```erlang
+supervisor_loop(ChildPids) ->
+    receive
+        {'EXIT', From, Reason} ->
+            case Reason of
+                ok ->
+                    ok;
+                _ ->
+                    io:fwrite(
+                        "Child process ~p exited with reason: ~p~n",
+                        [From, Reason]
+                    ),
+
+                    RestartedChildPids = restart_child(From, ChildPids),
+
+                    supervisor_loop(RestartedChildPids)
+            end;
+        {exit, Reason} ->
+            io:fwrite("Shutdown requested: ~p~n", [Reason]),
+            terminate_children(ChildPids),
+            wait_for_children(length(ChildPids));
+        _Other ->
+            supervisor_loop(ChildPids)
+    end.
+```
+```erlang
+restart_child(From, ChildPids) ->
+    case lists:keyfind(From, 2, ChildPids) of
+        {Tag, _Pid} ->
+            NewPid =
+                case Tag of
+                    interpolation ->
+                        {Freq, Window, Methods} = main:parse_config(),
+                        spawn_link(
+                            interpolation_module,
+                            start,
+                            [{Freq, Window, Methods}]
+                        );
+                    io_input ->
+                        {_, InterPid} = lists:keyfind(interpolation, 1, ChildPids),
+                        spawn_link(io_server, start_input, [self(), InterPid]);
+                    io_output ->
+                        spawn_link(io_server, start_output, [])
+                end,
+            lists:keyreplace(Tag, 1, ChildPids, {Tag, NewPid});
+        false ->
+            io:fwrite("Unknown process ~p, not restarting.~n", [From]),
+            ChildPids
+    end.
+```
+**Линейная инетрполяция:**
+```erlang
+linear_interpolation(Step, [[X1, Y1], [X2, Y2]]) ->
+    case X1 =:= X2 of
+        true ->
+            {error, linear};
+        false ->
+            K = (Y2 - Y1) / (X2 - X1),
+            B = Y1 - K * X1,
+            GenerateValues = interpolation:points_generator(Step, X1, X2),
+            Res = [GenerateValues, lists:map(fun(X) -> K * X + B end, GenerateValues)],
+            {ok, linear, Res}
+    end.
+```
+**Пример I/O**
+```
+Booted with -- Freq 0.5, Window 4, Methods [linear,lagrange]
+
+Enter dots: 1 0
+
+Enter dots: 2 0.693
+Linear interpolation result
+Generated Dots:
+   1.000    1.500    2.000    2.500 
+Interpolated Values:
+   0.000    0.346    0.693    1.039 
+
+Enter dots: 3 1.0986
+Linear interpolation result
+Generated Dots:
+   2.000    2.500    3.000    3.500 
+Interpolated Values:
+   0.693    0.896    1.099    1.301 
+
+Enter dots: 4 1.3863
+Linear interpolation result
+Generated Dots:
+   3.000    3.500    4.000    4.500 
+Interpolated Values:
+   1.099    1.242    1.386    1.530 
+
+Lagrange interpolation result
+Generated Dots:
+   1.000    1.500    2.000    2.500    3.000    3.500    4.000    4.500 
+Interpolated Values:
+   0.000    0.393    0.693    0.921    1.099    1.247    1.386    1.539 
+```
+
+
+## Реализация с OTP
+**Структура/назначение модулей:**
+1) lab3_gen_server_sup.erl – OTP супервизор
+2) input_server.erl – gen_server для ввода
+3) interpolation_server.erl – gen_server-координатор
+4) interpolation_sup.erl – Супервизор для методов интерполяции
+5) linear_server.erl – gen_server для линейной интерполяции
+6) lagrange_server.erl – gen_server для Лагранжа
+7) output_server.erl – gen_server для вывода
+
+**Абстрактная архитектура**
+input_server получает данные
+-> gen_server:cast(interpolation_server, {interpolate, Data})
+-> interpolation_server отправляет в linear_server и lagrange_server
+-> gen servers вычисляют результат
+-> отправляют обратно в interpolation_server
+-> interpolation_server отправляет в output_server
+-> output_server печатает
+
+**Сервер интерполяции**
+
+```erlang
+start_link(InitialValues) ->
+  gen_server:start_link({local, ?MODULE}, ?MODULE, [InitialValues], []).
+
+stop() ->
+  gen_server:cast(?MODULE, stop).
+
+
+init([{Freq, Window}]) ->
+  {ok, {Freq, Window}}.
+
+handle_cast({interpolate, Input}, State) ->
+  gen_server:cast(linear_server, {linear, Input, erlang:element(1, State)}),
+  gen_server:cast(
+    lagrange_server,
+    {lagrange, Input, erlang:element(2, State), erlang:element(1, State)}
+  ),
+  {noreply, State};
+handle_cast({ok, linear, Result}, State) ->
+  gen_server:cast(output_server, {ok, linear, Result}),
+  {noreply, State};
+handle_cast({ok, lagrange, Result}, State) ->
+  gen_server:cast(output_server, {ok, lagrange, Result}),
+  {noreply, State};
+handle_cast({error, Method, Msg}, State) ->
+  gen_server:cast(output_server, {error, Method, Msg}),
+  {noreply, State};
+handle_cast(stop, State) ->
+  {stop, normal, State}.
+handle_call(_, _From, State) ->
+  {reply, ok, State}.
+code_change(_OldVsn, State, _Extra) ->
+  {ok, State}.
+handle_info(_, State) ->
+  {noreply, State}.
+
+terminate(_Reason, _State) ->
+  ok.
+```
+
+**Linear interpolation:**
+
+```erlang
+start_link() ->
+  gen_server:start_link({local, ?MODULE}, ?MODULE, [], []).
+
+stop() ->
+  gen_server:cast(?MODULE, stop).
+
+
+init([]) ->
+  {ok, []}.
+
+handle_cast({linear, Input, Freq}, State) ->
+  %% Add the new point to the state
+  NewState =
+    case length(State) of
+      2 -> tl(State) ++ [Input];
+      _ -> State ++ [Input]
+    end,
+
+ 
+  NewState =
+    case NewState of
+      [P1, P2] ->
+        Sorted = lists:sort(fun([A, _], [B, _]) -> A =< B end, [P1, P2]),
+        Result = linear_interpolation(Freq, Sorted),
+        case Result of
+          {ok, linear, Res} ->
+            gen_server:cast(interpolation_server, {ok, linear, Res}),
+            NewState;
+          {error, linear, Msg} ->
+            gen_server:cast(interpolation_server, {error, linear, Msg}),
+NewState
+        end;
+      _ ->
+        NewState
+    end,
+
+  {noreply, NewState};
+handle_cast(stop, State) ->
+  {stop, normal, State}.
+
+handle_call(_, _From, State) ->
+  {reply, ok, State}.
+code_change(_OldVsn, State, _Extra) ->
+  {ok, State}.
+handle_info(_, State) ->
+  {noreply, State}.
+
+terminate(_Reason, _State) ->
+  ok.
+% Logic
+
+linear_interpolation(Step, [[X1, Y1], [X2, Y2]]) ->
+  case X1 =:= X2 of
+    true ->
+      {error, linear, "Значения X совпадают, введите другое значение X"};
+    false ->
+      K = (Y2 - Y1) / (X2 - X1),
+      B = Y1 - K * X1,
+      GenerateValues = interpolation_server:points_generator(Step, X1, X2),
+      Res = [GenerateValues, lists:map(fun(X) -> K * X + B end, GenerateValues)],
+      {ok, linear, Res}
+  end.
+```
+
+**Пример I/O**
+
+```Booted with: freq - 0.5, window - 4, methods - [linear,lagrange]
+
+Enter dot: 1 0
+
+Enter dot: 2 0.693
+
+Linear interpolation:
+Generated Dots:
+1.000    1.500    2.000    2.500
+Interpolated Values:
+0.000    0.346    0.693    1.039
+
+Enter dot: 3 1.0986
+
+Linear interpolation:
+Generated Dots:
+2.000    2.500    3.000    3.500
+Interpolated Values:
+0.693    0.896    1.099    1.301
+
+Enter dot: 4 1.3863
+
+Linear interpolation:
+Generated Dots:
+3.000    3.500    4.000    4.500
+Interpolated Values:
+1.099    1.242    1.386    1.530
+
+Lagrange interpolation:
+Generated Dots:
+1.000    1.500    2.000    2.500    3.000    3.500    4.000    4.500
+Interpolated Values:
+0.000    0.393    0.693    0.921    1.099    1.247    1.386    1.539
+
+```
+
+## Выводы
+Поработал с процессами и передачей сообщений, потыкался в I/O. 
+Из внутренних выводов напрашивается: 
+
+Управление PID'ами в реализации на обычных процессах – головная боль, OTP – крута. 
+В OTP сильно упрощается жизнь за счет работы с процессами как с функциямя, да и в целом "ген-серверы" и супервизоры позволяют убрать взрыв башки от ручного управления процессами.
+
+**7/10**, три балла отобраны лично мной, потому что мне стоило дописать и сдать лабу 2 месяца назад.
+
+
 
