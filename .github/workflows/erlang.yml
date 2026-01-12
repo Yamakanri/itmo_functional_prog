@@ -20,20 +20,28 @@ jobs:
           otp-version: '26.0'
           rebar3-version: '3.25.0'
 
-      - name: Compile all source modules
+      - name: Compile and run EUnit (costyl)
+        shell: bash
         run: |
-          erl -noshell -pa src/proc -pa src/gen_server \
-              -eval "for_each(File, ['linear_interpolation','lagrange_interpolation','interpolation','main','io_server','lab3_app','lab3_sup'], fun(F) -> compile:file(lists:concat(['src/proc/', F, '.erl']), [report]) end), \
-                     for_each(File, ['lagrange_server','lab3_gen_server_app','lab3_gen_server_sup','interpolation_sup','output_server','input_server','interpolation_server','linear_server'], fun(F) -> compile:file(lists:concat(['src/gen_server/', F, '.erl']), [report]) end), init:stop()."
-
-      - name: Compile all test modules
-        run: |
-          erl -noshell -pa src/proc -pa src/gen_server -pa src/proc/test -pa src/gen_server/test \
-              -eval "for_each(File, ['proc_linear_interpolation_test','proc_parser_test','proc_points_generator_test','proc_lagrange_interpolation_test'], fun(F) -> compile:file(lists:concat(['src/proc/test/', F, '.erl']), [report]) end), \
-                     for_each(File, ['gen_server_interpolation_test','gen_server_parser_test'], fun(F) -> compile:file(lists:concat(['src/gen_server/test/', F, '.erl']), [report]) end), init:stop()."
-
-      - name: Run EUnit tests
-        run: |
-          erl -pa src/proc -pa src/gen_server -pa src/proc/test -pa src/gen_server/test \
-              -noshell \
-              -eval "eunit:test([proc_linear_interpolation_test,proc_parser_test,proc_points_generator_test,proc_lagrange_interpolation_test,gen_server_interpolation_test,gen_server_parser_test],[verbose]), init:stop()."
+          erl -noshell \
+              -pa src/proc -pa src/gen_server -pa src/proc/test -pa src/gen_server/test \
+              -eval "
+                  lists:foreach(
+                      fun(F) -> compile:file('src/proc/' ++ F ++ '.erl', [report]) end,
+                      ['linear_interpolation','lagrange_interpolation','interpolation','main','io_server','lab3_app','lab3_sup']
+                  ),
+                  lists:foreach(
+                      fun(F) -> compile:file('src/gen_server/' ++ F ++ '.erl', [report]) end,
+                      ['lagrange_server','lab3_gen_server_app','lab3_gen_server_sup','interpolation_sup','output_server','input_server','interpolation_server','linear_server']
+                  ),
+                  lists:foreach(
+                      fun(F) -> compile:file('src/proc/test/' ++ F ++ '.erl', [report]) end,
+                      ['proc_linear_interpolation_test','proc_parser_test','proc_points_generator_test','proc_lagrange_interpolation_test']
+                  ),
+                  lists:foreach(
+                      fun(F) -> compile:file('src/gen_server/test/' ++ F ++ '.erl', [report]) end,
+                      ['gen_server_interpolation_test','gen_server_parser_test']
+                  ),
+                  eunit:test([proc_linear_interpolation_test,proc_parser_test,proc_points_generator_test,proc_lagrange_interpolation_test,gen_server_interpolation_test,gen_server_parser_test],[verbose]),
+                  init:stop().
+              "
