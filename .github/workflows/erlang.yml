@@ -11,7 +11,10 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        lab: [proc, gen_server]
+        lab:
+          - lab3/src/proc
+          - lab3/src/gen_server
+
     defaults:
       run:
         working-directory: ${{ matrix.lab }}
@@ -37,47 +40,28 @@ jobs:
         continue-on-error: true
 
   test:
-      runs-on: ubuntu-latest
-    
-      steps:
-        - name: Checkout code
-          uses: actions/checkout@v4
-    
-        - name: Setup Erlang + rebar3
-          uses: erlef/setup-beam@v1
-          with:
-            otp-version: '26.0'
-            rebar3-version: '3.25.0'
-    
-        - name: Compile proc version
-          working-directory: lab3/src/proc
-          run: |
-            rebar3 clean
-            rebar3 compile
-    
-        - name: Compile gen_server version
-          working-directory: lab3/src/gen_server
-          run: |
-            rebar3 clean
-            rebar3 compile
-    
-        - name: Compile tests
-          working-directory: lab3/test
-          run: |
-            erl -compile *.erl || true
-    
-        - name: Run EUnit tests
-          run: |
-            erl \
-              -pa lab3/src/proc/_build/default/lib/lab3/ebin \
-              -pa lab3/src/gen_server/_build/default/lib/lab3_gen_server/ebin \
-              -pa lab3/test \
-              -noshell \
-              -eval "eunit:test([
-                proc_parser_test,
-                proc_linear_interpolation_test,
-                proc_lagrange_interpolation_test,
-                proc_points_generator_test,
-                gen_server_parser_test,
-                gen_server_interpolation_test
-              ], [verbose]), init:stop()."
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Erlang + rebar3
+        uses: erlef/setup-beam@v1
+        with:
+          otp-version: '26.0'
+          rebar3-version: '3.25.0'
+
+      - name: Run proc tests
+        working-directory: lab3/src/proc
+        run: |
+          rebar3 clean
+          rebar3 compile
+          rebar3 eunit
+
+      - name: Run gen_server tests
+        working-directory: lab3/src/gen_server
+        run: |
+          rebar3 clean
+          rebar3 compile
+          rebar3 eunit
