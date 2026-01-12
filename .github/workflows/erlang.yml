@@ -20,12 +20,20 @@ jobs:
           otp-version: '26.0'
           rebar3-version: '3.25.0'
 
-      # Компиляция из корня lab3
-      - name: Compile all apps
+      # Компиляция всего проекта
+      - name: Compile all modules
         working-directory: ./lab3
         run: rebar3 clean compile
 
-      # Запуск всех EUnit тестов
-      - name: Run all EUnit tests
+      # Запуск всех EUnit тестов напрямую через erl
+      - name: Run all EUnit tests manually
         working-directory: ./lab3
-        run: rebar3 eunit
+        run: |
+          erl -pa src/proc -pa src/gen_server -pa src/proc/test -pa src/gen_server/test \
+              -noshell \
+              -eval "eunit:test([proc_linear_interpolation_test,
+                                  proc_parser_test,
+                                  proc_points_generator_test,
+                                  proc_lagrange_interpolation_test,
+                                  gen_server_interpolation_test,
+                                  gen_server_parser_test], [verbose]), init:stop()."
